@@ -1,13 +1,21 @@
 'use strict'
 
-const { app, BrowserWindow, BrowserView } = require('electron');
+const { app, BrowserWindow, BrowserView, ipcMain } = require('electron');
 
 /*
  * TODO:
- * [ ] Handle popup
- * [ ] Handle back button
+ * [x] Handle popup
+ * [x] Handle back button
+ * [x] Make popup window always stay on top
+ * [ ] Auto start video when opened
+ * [ ] Pause the video in main window when opened in popup
+ * [ ] Continue playing video from the time it was on when button was clicked
  * [ ] Open new popup window if old one was closed
  */
+
+const YoutubeVideoRegex = /^(?:https?\:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.?be)\/watch\?v=([0-9A-za-z_\-]{11})$/
+
+const YoutubeEmbedUrlPrefix = 'https://www.youtube.com/embed/';
 
 const InitialWidth = 1024;
 const InitialHeight = 768;
@@ -24,11 +32,14 @@ function createMainWindow() {
     win = new BrowserWindow({
         width: InitialWidth,
         height: InitialHeight,
+        webPreferences: {
+            devTools: false,
+        },
     });
 
     win.setMenu(null);
-
-    win.webContents.openDevTools({mode: 'detach'});
+    
+    //win.webContents.openDevTools({ mode: 'detach' });
 
     win.loadFile("index.html");
 }
@@ -36,6 +47,7 @@ function createMainWindow() {
 /**
  * Create BrowserView for youtube site.
  * BrowserView is used to prevent external sites from accessing Node API.
+ * @returns {BrowserView}
  */
 function createYoutubeBrowserView() {
     const browserView = new BrowserView({
@@ -49,15 +61,15 @@ function createYoutubeBrowserView() {
 
 /**
  * Create modal window for Youtube videos.
- * @param {BrowserWindow} parent 
  * @param {number} width 
- * @param {number} height 
+ * @param {number} height
+ * @returns {BrowserWindow}
  */
-function createYoutubeModal(parent, width, height) {
+function createYoutubeModal(width, height) {
     let youtubeModal = new BrowserWindow({
-        parent,
         width,
         height,
+        alwaysOnTop: true,
     });
 
     youtubeModal.setMenu(null);
@@ -69,7 +81,7 @@ function createYoutubeModal(parent, width, height) {
  * Resize BrowserView to fill window with specified size.
  * @param {BrowserView} browserView 
  * @param {number} windowWidth 
- * @param {number} windowHeight 
+ * @param {number} windowHeight
  */
 function adjustBrowserViewSize(browserView, windowWidth, windowHeight) {
     browserView.setBounds({
@@ -81,33 +93,67 @@ function adjustBrowserViewSize(browserView, windowWidth, windowHeight) {
 }
 
 /**
+ * Configure event handlers for main window events.
+ * @param {BrowserView} youtubeBrowserView 
+ * @param {BrowserWindow} youtubeModal
+ */
+function configureMainWindowEventHandlers(youtubeBrowserView, youtubeModal) {
+    // When main window is closed, also close modal window.
+    win.on('close', () => {
+        if (youtubeModal && !youtubeModal.isDestroyed()) {
+            youtubeModal.close();
+        }
+
+        win = null;
+    });
+
+    // Resize BrowserView with youtube when main window is resized to fill it.
+    win.on('resize', () => {
+        let size = win.getSize();
+        adjustBrowserViewSize(youtubeBrowserView, size[0], size[1]);
+    });
+}
+
+/**
+ * Configure handlers for IPC messages from toolbar.
+ * @param {BrowserView} youtubeBrowserView A BrowserView with youtube
+ * @param {BrowserWindow} youtubeModal A BrowserWindow popup for youtube videos 
+ */
+function configureToolbarIpcHandlers(youtubeBrowserView, youtubeModal) {
+    ipcMain.on('popup', () => {
+        const videoUrl = youtubeBrowserView.webContents.getURL();
+        const match = YoutubeVideoRegex.exec(videoUrl);
+
+        console.log(videoUrl);
+        console.log(match);
+
+        if (match !== null) {
+            const videoCode = match[1];
+            youtubeModal.webContents.loadURL(`${YoutubeEmbedUrlPrefix}${videoCode}`);
+        }
+    });
+
+    ipcMain.on('nav-back', () => {
+        youtubeBrowserView.webContents.goBack();
+    });
+}
+
+/**
  * Create and configure all required windows.
  */
 function initializeApplication() {
     createMainWindow();
 
-    let youtubeBrowserView = createYoutubeBrowserView();    
+    let youtubeBrowserView = createYoutubeBrowserView();
     win.setBrowserView(youtubeBrowserView);
     adjustBrowserViewSize(youtubeBrowserView, InitialWidth, InitialHeight);
     youtubeBrowserView.webContents.loadURL("https://youtube.com/");
 
-    let youtubeModal = createYoutubeModal(win, ModalInitialWidth, ModalInitialHeight);
+    let youtubeModal = createYoutubeModal(ModalInitialWidth, ModalInitialHeight);
     youtubeModal.show();
 
-    // When main window is closed, also close modal window.
-    win.on('close', () => {
-        if (youtubeModal && !youtubeModal.isDestroyed()) {
-            youtubeModal.close();            
-        }
-
-        win = null;
-    });
-    
-    // Resize BrowserView with youtube when main window is resized to fill it.
-    win.on('resize', () => {
-        let size = win.getSize();
-        adjustBrowserViewSize(youtubeBrowserView, size[0], size[1]);
-    });    
+    configureMainWindowEventHandlers(youtubeBrowserView, youtubeModal);
+    configureToolbarIpcHandlers(youtubeBrowserView, youtubeModal);
 }
 
 // This method will be called when Electron has finished

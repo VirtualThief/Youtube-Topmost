@@ -1,13 +1,15 @@
 'use strict'
 
+const { ipcRenderer } = require('electron');
+
 document.addEventListener('DOMContentLoaded', function (event) {
     const popupButton = document.querySelector('.button-popup');
     popupButton.addEventListener('click', () => {
-        alert("test");
+        ipcRenderer.send('popup');
     });
 
     const navBackButton = document.querySelector('.button-nav-back');
     navBackButton.addEventListener('click', () => {
-        alert('back');
+        ipcRenderer.send('nav-back');
     });
 });
