@@ -23,7 +23,15 @@ const TopBarHeight = 34;
 const ModalInitialWidth = 400;
 const ModalInitialHeight = 300;
 
+/**
+ * @type {BrowserWindow}
+ */
 let win;
+
+/**
+ * @type {BrowserWindow}
+ */
+let youtubeModal;
 
 /**
  * Create main application window.
@@ -38,7 +46,7 @@ function createMainWindow() {
     });
 
     win.setMenu(null);
-    
+
     //win.webContents.openDevTools({ mode: 'detach' });
 
     win.loadFile("index.html");
@@ -63,10 +71,9 @@ function createYoutubeBrowserView() {
  * Create modal window for Youtube videos.
  * @param {number} width 
  * @param {number} height
- * @returns {BrowserWindow}
  */
 function createYoutubeModal(width, height) {
-    let youtubeModal = new BrowserWindow({
+    youtubeModal = new BrowserWindow({
         width,
         height,
         alwaysOnTop: true,
@@ -74,7 +81,11 @@ function createYoutubeModal(width, height) {
 
     youtubeModal.setMenu(null);
 
-    return youtubeModal;
+    youtubeModal.on('close', () => {
+        youtubeModal = null;
+    });
+
+    youtubeModal.show();
 }
 
 /**
@@ -95,9 +106,8 @@ function adjustBrowserViewSize(browserView, windowWidth, windowHeight) {
 /**
  * Configure event handlers for main window events.
  * @param {BrowserView} youtubeBrowserView 
- * @param {BrowserWindow} youtubeModal
  */
-function configureMainWindowEventHandlers(youtubeBrowserView, youtubeModal) {
+function configureMainWindowEventHandlers(youtubeBrowserView) {
     // When main window is closed, also close modal window.
     win.on('close', () => {
         if (youtubeModal && !youtubeModal.isDestroyed()) {
@@ -117,9 +127,8 @@ function configureMainWindowEventHandlers(youtubeBrowserView, youtubeModal) {
 /**
  * Configure handlers for IPC messages from toolbar.
  * @param {BrowserView} youtubeBrowserView A BrowserView with youtube
- * @param {BrowserWindow} youtubeModal A BrowserWindow popup for youtube videos 
  */
-function configureToolbarIpcHandlers(youtubeBrowserView, youtubeModal) {
+function configureToolbarIpcHandlers(youtubeBrowserView) {
     ipcMain.on('popup', () => {
         const videoUrl = youtubeBrowserView.webContents.getURL();
         const match = YoutubeVideoRegex.exec(videoUrl);
@@ -129,13 +138,38 @@ function configureToolbarIpcHandlers(youtubeBrowserView, youtubeModal) {
 
         if (match !== null) {
             const videoCode = match[1];
-            youtubeModal.webContents.loadURL(`${YoutubeEmbedUrlPrefix}${videoCode}`);
+            openVideoInPopup(videoCode);
         }
     });
 
     ipcMain.on('nav-back', () => {
         youtubeBrowserView.webContents.goBack();
     });
+}
+
+/**
+ * Open video in popup window. If window is closed, open a new one.
+ * @param {string} videoCode
+ */
+function openVideoInPopup(videoCode) {
+    if (isNullOrUndefined(youtubeModal)) {
+        createYoutubeModal(ModalInitialWidth, ModalInitialHeight);
+    }
+
+    if (youtubeModal.isVisible()) {
+        youtubeModal.focus();
+    }
+
+    youtubeModal.webContents.loadURL(`${YoutubeEmbedUrlPrefix}${videoCode}`);
+}
+
+/**
+ * Check if value is null or undefined.
+ * @param {*} value 
+ */
+function isNullOrUndefined(value) {
+    return value === null
+        || value === undefined;
 }
 
 /**
@@ -148,12 +182,9 @@ function initializeApplication() {
     win.setBrowserView(youtubeBrowserView);
     adjustBrowserViewSize(youtubeBrowserView, InitialWidth, InitialHeight);
     youtubeBrowserView.webContents.loadURL("https://youtube.com/");
-
-    let youtubeModal = createYoutubeModal(ModalInitialWidth, ModalInitialHeight);
-    youtubeModal.show();
-
-    configureMainWindowEventHandlers(youtubeBrowserView, youtubeModal);
-    configureToolbarIpcHandlers(youtubeBrowserView, youtubeModal);
+    
+    configureMainWindowEventHandlers(youtubeBrowserView);
+    configureToolbarIpcHandlers(youtubeBrowserView);
 }
 
 // This method will be called when Electron has finished
