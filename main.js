@@ -8,10 +8,12 @@ const fs = require('fs');
  * [x] Handle popup
  * [x] Handle back button
  * [x] Make popup window always stay on top
- * [ ] Auto start video when opened
  * [x] Pause the video in main window when opened in popup
- * [ ] Continue playing video from the time it was on when button was clicked
  * [x] Open new popup window if old one was closed
+ * [ ] Auto start video when opened
+ * [ ] Continue playing video from the time it was on when button was clicked
+ * [ ] Configure build
+ * [ ] Playlist of videos
  */
 
 const YoutubeVideoRegex = /^(?:https?\:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.?be)\/watch\?v=([0-9A-za-z_\-]{11})$/
@@ -21,8 +23,6 @@ const YoutubeEmbedUrlPrefix = 'https://www.youtube.com/embed/';
 const InitialWidth = 1024;
 const InitialHeight = 768;
 const TopBarHeight = 34;
-const ModalInitialWidth = 400;
-const ModalInitialHeight = 300;
 
 /**
  * @type {BrowserWindow}
@@ -182,15 +182,6 @@ function pauseCurrentVideoInMainWindow() {
                 console.error(err);
             });
     });
-}
-
-/**
- * Check if value is null or undefined.
- * @param {*} value 
- */
-function isNullOrUndefined(value) {
-    return value === null
-        || value === undefined;
 }
 
 /**
