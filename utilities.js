@@ -1,15 +1,13 @@
-'use strict'
-
 /**
  * Check if value is null or undefined.
- * @param {*} value 
+ * @param {*} value
  * @returns {boolean}
  */
 function isNullOrUndefined(value) {
-    return value === null
-        || value === undefined;
+  return value === null
+    || value === undefined;
 }
 
 module.exports = {
-    isNullOrUndefined,
+  isNullOrUndefined,
 };
