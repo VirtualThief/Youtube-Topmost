@@ -2,19 +2,33 @@
   "name": "youtube-topmost",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
-    "start": "electron ."
+    "postinstall": "electron-builder install-app-deps",
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dev": "electron-webpack dev"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "electron": "^3.0.6"
+    "electron": "^3.0.6",
+    "source-map-support": "^0.5.9"
   },
   "devDependencies": {
+    "electron-builder": "^20.29.0",
+    "electron-webpack": "^2.3.1",
     "eslint": "^5.8.0",
     "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0"
+    "eslint-plugin-import": "^2.14.0",
+    "webpack": "^4.23.1"
+  },
+  "build": {
+    "appId": "virtualthief.youtube-popup",
+    "mac": {
+      "category": "virtualthief.youtube-popup"
+    }
   }
 }

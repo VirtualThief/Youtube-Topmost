@@ -4,4 +4,8 @@ module.exports = {
         "no-underscore-dangle": ["error", { "allowAfterThis": true }],
         "no-use-before-define": ["error", "nofunc"],
     },
+    "env": {
+        "node": true,
+        "browser": true,
+    },
 };

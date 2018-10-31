@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>
+    <%= htmlWebpackPlugin.options.title %>
+  </title>
+  <meta charset="utf-8">
+  <script>
+    <% if (htmlWebpackPlugin.options.nodeModules) { %>
+      require('module').globalPaths.push(
+        '<%= htmlWebpackPlugin.options.nodeModules %>'.replace(/\\/g, '\\\\'),
+      )
+      <% } %>
+        require('source-map-support/source-map-support.js').install()
+  </script>
+</head>
+
+
+
+<body>
+  <div class="window">
+    <header class="toolbar toolbar-header">
+      <div class="toolbar-actions">
+        <div class="btn-group">
+          <button class="btn btn-default button-nav-back">
+            <span class="icon icon-left"></span>
+          </button>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-default button-popup">
+            <span class="icon icon-popup"></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- BrowserView here -->
+  </div>
+</body>
+
+</html>

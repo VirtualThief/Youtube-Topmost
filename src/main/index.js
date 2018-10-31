@@ -1,8 +1,10 @@
-const {
+import {
   app, BrowserWindow, BrowserView, ipcMain,
-} = require('electron');
-const fs = require('fs');
-const YoutubePopupManager = require('./YoutubePopupManager');
+} from 'electron';
+import * as fs from 'fs';
+import * as path from 'path';
+import { format as formatUrl } from 'url';
+import YoutubePopupManager from './YoutubePopupManager';
 
 /*
  * TODO:
@@ -16,6 +18,8 @@ const YoutubePopupManager = require('./YoutubePopupManager');
  * [ ] Configure build
  * [ ] Playlist of videos
  */
+
+const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const YoutubeVideoRegex = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.?be)\/watch\?v=([0-9A-za-z_-]{11})$/;
 
@@ -46,15 +50,23 @@ function createMainWindow() {
     width: InitialWidth,
     height: InitialHeight,
     webPreferences: {
-      devTools: false,
+      // devTools: false,
     },
   });
 
   win.setMenu(null);
 
-  // win.webContents.openDevTools({ mode: 'detach' });
+  win.webContents.openDevTools({ mode: 'detach' });
 
-  win.loadFile('index.html');
+  if (isDevelopment) {
+    win.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
+  } else {
+    win.loadURL(formatUrl({
+      pathname: path.join(__dirname, 'index.html'),
+      protocol: 'file',
+      slashes: true,
+    }));
+  }
 }
 
 /**

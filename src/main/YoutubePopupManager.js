@@ -1,5 +1,5 @@
 const { BrowserWindow } = require('electron');
-const { isNullOrUndefined } = require('./utilities');
+const { isNullOrUndefined } = require('../common/utilities');
 
 const YoutubeEmbedUrlPrefix = 'https://www.youtube.com/embed/';
 const ModalInitialWidth = 400;
