@@ -11,10 +11,13 @@ const YoutubePopupManager = require('./YoutubePopupManager');
  * [x] Make popup window always stay on top
  * [x] Pause the video in main window when opened in popup
  * [x] Open new popup window if old one was closed
+ * [x] Fix window resize
+ * [x] Configure builds to drop to subfolder
  * [ ] Auto start video when opened
  * [ ] Continue playing video from the time it was on when button was clicked
  * [ ] Configure build
  * [ ] Playlist of videos
+ * [ ] Add quick open field
  */
 
 const YoutubeVideoRegex = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.?be)\/watch\?v=([0-9A-za-z_-]{11})$/;
@@ -99,7 +102,7 @@ function configureMainWindowEventHandlers() {
   // Resize BrowserView with youtube when main window is resized to fill it.
   win.on('resize', () => {
     const size = win.getSize();
-    adjustBrowserViewSize(youtubeBrowserView, size[0], size[1]);
+    adjustBrowserViewSize(size[0], size[1]);
   });
 }
 

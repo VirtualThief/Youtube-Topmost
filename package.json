@@ -4,7 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-packager . youtube-popup --out=build --overwrite"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +14,7 @@
     "electron": "^3.0.6"
   },
   "devDependencies": {
+    "electron-packager": "^12.2.0",
     "eslint": "^5.8.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0"
