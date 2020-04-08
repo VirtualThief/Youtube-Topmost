@@ -30,25 +30,6 @@ import YoutubeTopmostApp from "./application";
 //  */
 // let youtubeBrowserView;
 
-//   win.setBrowserView(youtubeBrowserView);
-//   adjustBrowserViewSize(InitialWidth, InitialHeight);
-// }
-
-// /**
-//  * Resize BrowserView to fill window with specified size.
-//  * @param {BrowserView} browserView
-//  * @param {number} windowWidth
-//  * @param {number} windowHeight
-//  */
-// function adjustBrowserViewSize(windowWidth, windowHeight) {
-//   youtubeBrowserView.setBounds({
-//     x: 0,
-//     y: TopBarHeight,
-//     width: windowWidth,
-//     height: windowHeight - TopBarHeight,
-//   });
-// }
-
 // /**
 //  * Configure event handlers for main window events.
 //  */

@@ -40,10 +40,6 @@ class YoutubeTopmostApp {
   _initializeApplication() {
     this.mainWindow = new MainWindow();
 
-    // createYoutubeBrowserView();
-
-    // youtubeBrowserView.webContents.loadURL('https://youtube.com/');
-
     // configureMainWindowEventHandlers();
     // configureToolbarIpcHandlers();
     // electron.session.defaultSession.webRequest.onHeadersReceived(

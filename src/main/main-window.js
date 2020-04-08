@@ -14,10 +14,13 @@ class MainWindow {
   /**
    * @type {BrowserView}
    */
-  browserView;
+  youtubeBrowserView;
 
   constructor() {
     this._createMainWindow();
+    this._createYoutubeBrowserView();
+
+    this.youtubeBrowserView.webContents.loadURL("https://youtube.com/");
   }
 
   /**
@@ -34,7 +37,7 @@ class MainWindow {
 
     this.win.setMenu(null);
 
-    // this.win.loadFile(path.join(__dirname, "..", "renderer", "index.html"));
+    // Render main view
     if (isDev) {
       this.win.loadURL(
         `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
@@ -48,6 +51,8 @@ class MainWindow {
         })
       );
     }
+
+    // Show developer tools
     if (isDev) {
       console.log("Opening dev tools for development build");
       this.win.webContents.openDevTools({ mode: "undocked" });
@@ -62,7 +67,29 @@ class MainWindow {
     this.youtubeBrowserView = new BrowserView({
       webPreferences: {
         nodeIntegration: false,
+        webSecurity: false,
       },
+    });
+
+    this.win.setBrowserView(this.youtubeBrowserView);
+    this._adjustBrowserViewSize(
+      Constants.InitialWidth,
+      Constants.InitialHeight
+    );
+  }
+
+  /**
+   * Resize BrowserView to fill window with specified size.
+   * @param {BrowserView} browserView
+   * @param {number} windowWidth
+   * @param {number} windowHeight
+   */
+  _adjustBrowserViewSize(windowWidth, windowHeight) {
+    this.youtubeBrowserView.setBounds({
+      x: 0,
+      y: Constants.TopBarHeight,
+      width: windowWidth,
+      height: windowHeight - Constants.TopBarHeight,
     });
   }
 }
