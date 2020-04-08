@@ -1,3 +1,5 @@
+import path from "path";
+import { format as formatUrl } from "url";
 import { BrowserWindow, BrowserView } from "electron";
 import isDev from "electron-is-dev";
 
@@ -26,14 +28,26 @@ class MainWindow {
       width: Constants.InitialWidth,
       height: Constants.InitialHeight,
       webPreferences: {
-        devTools: false,
+        nodeIntegration: true,
       },
     });
 
     this.win.setMenu(null);
 
-    this.win.loadFile("index.html");
-
+    // this.win.loadFile(path.join(__dirname, "..", "renderer", "index.html"));
+    if (isDev) {
+      this.win.loadURL(
+        `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
+      );
+    } else {
+      this.win.loadURL(
+        formatUrl({
+          pathname: path.join(__dirname, "index.html"),
+          protocol: "file",
+          slashes: true,
+        })
+      );
+    }
     if (isDev) {
       console.log("Opening dev tools for development build");
       this.win.webContents.openDevTools({ mode: "undocked" });

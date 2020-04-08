@@ -1,8 +1,8 @@
-// import { app, BrowserWindow, BrowserView, ipcMain } from 'electron';
-// import { readFile } from 'fs';
-
 import YoutubeTopmostApp from "./application";
 // import YoutubePopupManager from './YoutubePopupManager';
+
+// import { app, BrowserWindow, BrowserView, ipcMain } from 'electron';
+// import { readFile } from 'fs';
 
 /*
  * TODO:
