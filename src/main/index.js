@@ -30,58 +30,5 @@ import YoutubeTopmostApp from "./application";
 //  */
 // let youtubeBrowserView;
 
-// /**
-//  * Configure event handlers for main window events.
-//  */
-// function configureMainWindowEventHandlers() {
-//   // When main window is closed, also close popup window.
-//   win.on('close', () => {
-//     youtubePopup.close();
-//   });
-
-//   // Resize BrowserView with youtube when main window is resized to fill it.
-//   win.on('resize', () => {
-//     const size = win.getSize();
-//     adjustBrowserViewSize(size[0], size[1]);
-//   });
-// }
-
-// /**
-//  * Configure handlers for IPC messages from toolbar.
-//  */
-// function configureToolbarIpcHandlers() {
-//   ipcMain.on('popup', () => {
-//     const videoUrl = youtubeBrowserView.webContents.getURL();
-//     const match = YoutubeVideoRegex.exec(videoUrl);
-
-//     console.log(videoUrl);
-//     console.log(match);
-
-//     if (match !== null) {
-//       const videoCode = match[1];
-//       pauseCurrentVideoInMainWindow();
-//       youtubePopup.openVideo(videoCode);
-//     }
-//   });
-
-//   ipcMain.on('nav-back', () => {
-//     youtubeBrowserView.webContents.goBack();
-//   });
-// }
-
-// function pauseCurrentVideoInMainWindow() {
-//   readFile(`${__dirname}/inject/pauseYoutubeVideo.js`, { encoding: 'utf-8' }, (err1, data) => {
-//     if (err1) {
-//       console.error(err1);
-//       return;
-//     }
-
-//     youtubeBrowserView.webContents.executeJavaScript(data)
-//       .catch((err2) => {
-//         console.error(err2);
-//       });
-//   });
-// }
-
 const youtubeApp = new YoutubeTopmostApp();
 youtubeApp.initialize();
