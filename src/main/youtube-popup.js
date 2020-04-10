@@ -1,7 +1,7 @@
-const { BrowserWindow } = require('electron');
-const { isNullOrUndefined } = require('./utilities');
+import { BrowserWindow } from "electron";
+import isNil from "lodash.isnil";
 
-const YoutubeEmbedUrlPrefix = 'https://www.youtube.com/embed/';
+const YoutubeEmbedUrlPrefix = "https://www.youtube.com/embed/";
 const ModalInitialWidth = 400;
 const ModalInitialHeight = 300;
 
@@ -9,27 +9,36 @@ const ModalInitialHeight = 300;
  * Manages the popup window.
  * @field {BrowserWindow} _youtubePopupWindow_internal
  */
-class YoutubePopupManager {
+class YoutubePopup {
+  /**
+   * @type {BrowserWindow}
+   */
+  _youtubePopupWindow_internal;
+
   /**
    * Open video with provided ID.
    * @param {string} videoCode The ID of the video.
    */
   openVideo(videoCode) {
-    if (isNullOrUndefined(this._youtubePopupWindow_internal)) {
+    if (isNil(this._youtubePopupWindow_internal)) {
       this._createPopupWindowInternal();
     }
 
     this._youtubePopupWindow_internal.focus();
 
-    this._youtubePopupWindow_internal.webContents.loadURL(`${YoutubeEmbedUrlPrefix}${videoCode}`);
+    this._youtubePopupWindow_internal.webContents.loadURL(
+      `${YoutubeEmbedUrlPrefix}${videoCode}`
+    );
   }
 
   /**
    * Close popup.
    */
   close() {
-    if (!isNullOrUndefined(this._youtubePopupWindow_internal)
-      && !this._youtubePopupWindow_internal.isDestroyed()) {
+    if (
+      !isNil(this._youtubePopupWindow_internal) &&
+      !this._youtubePopupWindow_internal.isDestroyed()
+    ) {
       // Need to save this to separate variable because field is nullified when window is closed.
       const window = this._youtubePopupWindow_internal;
       window.close();
@@ -41,8 +50,8 @@ class YoutubePopupManager {
    * Creates new popup window.
    */
   _createPopupWindowInternal() {
-    if (!isNullOrUndefined(this._youtubePopupWindow_internal)) {
-      throw new Error('Popup is already created');
+    if (!isNil(this._youtubePopupWindow_internal)) {
+      throw new Error("Popup is already created");
     }
 
     this._youtubePopupWindow_internal = new BrowserWindow({
@@ -53,7 +62,7 @@ class YoutubePopupManager {
 
     this._youtubePopupWindow_internal.setMenu(null);
 
-    this._youtubePopupWindow_internal.on('close', () => {
+    this._youtubePopupWindow_internal.on("close", () => {
       this._youtubePopupWindow_internal = null;
     });
 
@@ -61,4 +70,4 @@ class YoutubePopupManager {
   }
 }
 
-module.exports = YoutubePopupManager;
+export default YoutubePopup;
