@@ -14,6 +14,7 @@
     "electron": "^8.2.1",
     "electron-is-dev": "^1.2.0",
     "electron-webpack": "^2.8.2",
+    "lodash.isnil": "^4.0.0",
     "webpack": "^4.42.1"
   },
   "devDependencies": {

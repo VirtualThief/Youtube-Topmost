@@ -1,14 +1,18 @@
-import { app, BrowserWindow, BrowserView, ipcMain } from "electron";
-import * as electron from "electron";
+import { app } from "electron";
 
-import * as Constants from "./constants";
 import MainWindow from "./main-window";
+import YoutubePopup from "./youtube-popup";
 
 class YoutubeTopmostApp {
   /**
    * @type {MainWindow}
    */
   mainWindow;
+
+  /**
+   * @type {YoutubePopup}
+   */
+  youtubePopup;
 
   initialize() {
     // This method will be called when Electron has finished
@@ -39,19 +43,15 @@ class YoutubeTopmostApp {
    */
   _initializeApplication() {
     this.mainWindow = new MainWindow();
+    this.youtubePopup = new YoutubePopup();
 
-    // configureMainWindowEventHandlers();
-    // configureToolbarIpcHandlers();
-    // electron.session.defaultSession.webRequest.onHeadersReceived(
-    //   (details, callback) => {
-    //     callback({
-    //       responseHeaders: {
-    //         ...details.responseHeaders,
-    //         "Content-Security-Policy": ["default-src 'self'"],
-    //       },
-    //     });
-    //   }
-    // );
+    this.mainWindow.on("popup", (videoCode) => {
+      this.youtubePopup.openVideo(videoCode);
+    });
+
+    this.mainWindow.win.on("close", () => {
+      this.youtubePopup.close();
+    });
   }
 }
 

@@ -20,9 +20,9 @@ class MainWindow {
   _handlers = {};
 
   constructor() {
-    this._createMainWindow();
+    this.win = this._createMainWindow();
     this._createYoutubeBrowserView();
-    this._configureMainWindowEventHandlers();
+    this._configureWindowResize();
     this._configureToolbarIpcHandlers();
 
     this.youtubeBrowserView.webContents.loadURL("https://youtube.com/");
@@ -35,14 +35,19 @@ class MainWindow {
 
     this._handlers[event].push(handler);
 
-    // TODO Return unsubscribe.
+    // Return unsubscribe callback.
+    return () => {
+      this._handlers[event] = this._handlers[event].filter(
+        (h) => h !== handler
+      );
+    };
   }
 
   /**
    * Create main application window.
    */
   _createMainWindow() {
-    this.win = new BrowserWindow({
+    const win = new BrowserWindow({
       width: Constants.InitialWidth,
       height: Constants.InitialHeight,
       webPreferences: {
@@ -50,15 +55,13 @@ class MainWindow {
       },
     });
 
-    this.win.setMenu(null);
+    win.setMenu(null);
 
     // Render main view
     if (isDev) {
-      this.win.loadURL(
-        `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
-      );
+      win.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
     } else {
-      this.win.loadURL(
+      win.loadURL(
         formatUrl({
           pathname: path.join(__dirname, "index.html"),
           protocol: "file",
@@ -70,8 +73,10 @@ class MainWindow {
     // Show developer tools
     if (isDev) {
       console.log("Opening dev tools for development build");
-      this.win.webContents.openDevTools({ mode: "undocked" });
+      win.webContents.openDevTools({ mode: "undocked" });
     }
+
+    return win;
   }
 
   /**
@@ -87,10 +92,6 @@ class MainWindow {
     });
 
     this.win.setBrowserView(this.youtubeBrowserView);
-    this._adjustBrowserViewSize(
-      Constants.InitialWidth,
-      Constants.InitialHeight
-    );
   }
 
   /**
@@ -111,20 +112,11 @@ class MainWindow {
   /**
    * Configure event handlers for main window events.
    */
-  _configureMainWindowEventHandlers() {
-    // When main window is closed, also close popup window.
-    // TODO Move subscription to popup class.
-    // win.on('close', () => {
-    //   youtubePopup.close();
-    // });
-
-    this.win.on("close", () => {
-      if (this._handlers["close"]) {
-        this._handlers["close"].forEach((handler) => {
-          handler();
-        });
-      }
-    });
+  _configureWindowResize() {
+    this._adjustBrowserViewSize(
+      Constants.InitialWidth,
+      Constants.InitialHeight
+    );
 
     // Resize BrowserView with youtube when main window is resized to fill it.
     this.win.on("resize", () => {
@@ -141,13 +133,10 @@ class MainWindow {
       const videoUrl = this.youtubeBrowserView.webContents.getURL();
       const match = Constants.YoutubeVideoRegex.exec(videoUrl);
 
-      console.log(match);
-
       if (match !== null) {
         const videoCode = match[1];
         this._pauseCurrentVideo();
-        // TODO Move to popup class
-        // youtubePopup.openVideo(videoCode);
+
         if (this._handlers["popup"]) {
           this._handlers["popup"].forEach((handler) => {
             handler(videoCode);
