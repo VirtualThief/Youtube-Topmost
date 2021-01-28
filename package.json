@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "electron": "^8.2.1",
+    "electron": "^9.4.0",
     "electron-is-dev": "^1.2.0",
     "electron-webpack": "^2.8.2",
     "lodash.isnil": "^4.0.0",
